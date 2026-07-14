@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="default">
+  <!-- Decorative animated layers, shown/hidden depending on the weather -->
+  <div class="sky">
+    <div class="sun" aria-hidden="true"></div>
+    <div class="clouds" aria-hidden="true">
+      <div class="cloud cloud-1"></div>
+      <div class="cloud cloud-2"></div>
+      <div class="cloud cloud-3"></div>
+    </div>
+    <div class="rain-layer" aria-hidden="true"></div>
+    <div class="snow-layer" aria-hidden="true"></div>
+    <div class="stars" aria-hidden="true"></div>
+  </div>
+
+  <main class="app">
+    <h1 class="title">Weather</h1>
+    <p class="subtitle">Type a city and hit search</p>
+
+    <form id="search-form" class="search" autocomplete="off">
+      <input
+        id="city-input"
+        type="text"
+        placeholder="Enter a city…"
+        aria-label="City name"
+        required
+      />
+      <button type="submit" aria-label="Search">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.5" y2="16.5"></line>
+        </svg>
+      </button>
+    </form>
+
+    <p id="error" class="error hidden">Invalid city</p>
+    <p id="loading" class="loading hidden">Fetching weather…</p>
+
+    <section id="weather-card" class="card hidden" aria-live="polite">
+      <h2 id="city-name" class="city"></h2>
+      <div class="main-reading">
+        <span id="weather-emoji" class="emoji"></span>
+        <span id="temperature" class="temp"></span>
+      </div>
+      <p id="description" class="description"></p>
+
+      <div class="details">
+        <div class="detail">
+          <span class="detail-label">Humidity</span>
+          <span id="humidity" class="detail-value"></span>
+        </div>
+        <div class="detail">
+          <span class="detail-label">Wind speed</span>
+          <span id="wind" class="detail-value"></span>
+        </div>
+      </div>
+
+      <p id="updated" class="updated"></p>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
