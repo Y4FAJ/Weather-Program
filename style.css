@@ -160,19 +160,28 @@ body.thunder .cloud {
 }
 
 /* --- Rain --- */
+/* Individual raindrop streaks tiled over the whole viewport (top, middle
+   and bottom), falling continuously. The layer is oversized and slightly
+   skewed so the drops fall at an angle without leaving gaps at the edges. */
 .rain-layer {
   position: absolute;
-  inset: 0;
+  inset: -20%;
   opacity: 0;
   transition: opacity 1.2s ease;
-  background-image: repeating-linear-gradient(
-    100deg,
-    transparent 0px,
-    transparent 24px,
-    rgba(255, 255, 255, 0.28) 24px,
-    rgba(255, 255, 255, 0.28) 26px
-  );
-  animation: rain-fall 0.5s linear infinite;
+  transform: skewX(-6deg);
+  background-image:
+    radial-gradient(1.5px 12px at 12% 15%, rgba(255, 255, 255, 0.5) 50%, transparent 70%),
+    radial-gradient(1.5px 14px at 35% 45%, rgba(255, 255, 255, 0.45) 50%, transparent 70%),
+    radial-gradient(1.5px 11px at 58% 25%, rgba(255, 255, 255, 0.5) 50%, transparent 70%),
+    radial-gradient(1.5px 13px at 78% 60%, rgba(255, 255, 255, 0.45) 50%, transparent 70%),
+    radial-gradient(1.5px 12px at 92% 35%, rgba(255, 255, 255, 0.5) 50%, transparent 70%),
+    radial-gradient(1px 10px at 25% 80%, rgba(255, 255, 255, 0.35) 50%, transparent 70%),
+    radial-gradient(1px 9px at 50% 70%, rgba(255, 255, 255, 0.35) 50%, transparent 70%),
+    radial-gradient(1px 10px at 70% 92%, rgba(255, 255, 255, 0.35) 50%, transparent 70%),
+    radial-gradient(1px 9px at 5% 55%, rgba(255, 255, 255, 0.35) 50%, transparent 70%),
+    radial-gradient(1px 11px at 88% 82%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  background-size: 210px 240px;
+  animation: rain-fall 0.7s linear infinite;
 }
 
 body.rain .rain-layer,
@@ -180,9 +189,10 @@ body.thunder .rain-layer {
   opacity: 1;
 }
 
+/* Shift by exactly two tile heights so the loop is seamless */
 @keyframes rain-fall {
   from { background-position: 0 0; }
-  to { background-position: -30px 160px; }
+  to { background-position: 0 480px; }
 }
 
 /* --- Thunder flash --- */
