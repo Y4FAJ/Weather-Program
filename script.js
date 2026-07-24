@@ -54,7 +54,22 @@ const WEATHER_CODES = {
   99: { description: "Thunderstorm with heavy hail", emoji: "⛈️", theme: "thunder" },
 };
 
-const THEMES = ["default", "clear", "partly-cloudy", "overcast", "fog", "rain", "snow", "thunder", "night"];
+const THEMES = ["default", "clear", "partly-cloudy", "overcast", "fog", "rain", "snow", "thunder", "night", "night-cloudy"];
+
+// Resolves the final theme, swapping day skies for night ones after dark
+function themeFor(current) {
+  const codeInfo = WEATHER_CODES[current.weather_code] || {
+    description: "Unknown conditions",
+    emoji: "🌡️",
+    theme: "default",
+  };
+  let theme = codeInfo.theme;
+  if (current.is_day === 0) {
+    if (theme === "clear") theme = "night";
+    else if (theme === "partly-cloudy" || theme === "overcast") theme = "night-cloudy";
+  }
+  return { codeInfo, theme };
+}
 
 function setTheme(theme) {
   document.body.classList.remove(...THEMES);
@@ -74,14 +89,28 @@ function placeRegion(place) {
   return [place.admin1, place.country].filter(Boolean).join(", ");
 }
 
-// Shows a clickable list of places when several share the searched name
-function showOptions(places) {
+// Shows a clickable list of places when several share the searched name,
+// each previewing its current weather (background, temperature, description)
+async function showOptions(places) {
+  // One batched request fetches the current weather for every candidate
+  const weatherResponse = await fetch(
+    "https://api.open-meteo.com/v1/forecast?" +
+      "latitude=" + places.map((p) => p.latitude).join(",") +
+      "&longitude=" + places.map((p) => p.longitude).join(",") +
+      "&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,is_day"
+  );
+  const data = await weatherResponse.json();
+  const weathers = Array.isArray(data) ? data : [data];
+
   optionsListEl.innerHTML = "";
-  places.forEach((place) => {
+  places.forEach((place, i) => {
+    const weather = weathers[i];
+    const { codeInfo, theme } = themeFor(weather.current);
+
     const li = document.createElement("li");
     const button = document.createElement("button");
     button.type = "button";
-    button.className = "option";
+    button.className = "option opt-" + theme;
 
     const nameSpan = document.createElement("span");
     nameSpan.className = "option-name";
@@ -91,10 +120,18 @@ function showOptions(places) {
     regionSpan.className = "option-region";
     regionSpan.textContent = placeRegion(place);
 
-    button.append(nameSpan, regionSpan);
+    const descSpan = document.createElement("span");
+    descSpan.className = "option-desc";
+    descSpan.textContent = codeInfo.description;
+
+    const tempSpan = document.createElement("span");
+    tempSpan.className = "option-temp";
+    tempSpan.textContent = Math.round(weather.current.temperature_2m) + "°";
+
+    button.append(nameSpan, regionSpan, descSpan, tempSpan);
     button.addEventListener("click", () => {
       hide(optionsEl);
-      fetchWeather(place);
+      displayWeather(place, weather);
     });
     li.appendChild(button);
     optionsListEl.appendChild(li);
@@ -142,8 +179,8 @@ form.addEventListener("submit", async (event) => {
     // Several distinct places share this name -> let the user pick.
     // Exactly one (or no exact match) -> go straight to the best result.
     if (exactMatches.length > 1) {
+      await showOptions(exactMatches);
       hide(loadingEl);
-      showOptions(exactMatches);
       return;
     }
 
@@ -170,35 +207,31 @@ async function fetchWeather(place) {
         "&current=temperature_2m,relative_humidity_2m,wind_speed_10m,weather_code,is_day"
     );
     const weather = await weatherResponse.json();
-    const current = weather.current;
-    const units = weather.current_units;
-
-    const codeInfo = WEATHER_CODES[current.weather_code] || {
-      description: "Unknown conditions",
-      emoji: "🌡️",
-      theme: "default",
-    };
-
-    // Step 3: display everything
-    cityNameEl.textContent = place.name;
-    emojiEl.textContent = current.is_day === 0 && codeInfo.theme === "clear" ? "🌙" : codeInfo.emoji;
-    temperatureEl.textContent = current.temperature_2m + units.temperature_2m;
-    descriptionEl.textContent = codeInfo.description;
-    humidityEl.textContent = current.relative_humidity_2m + units.relative_humidity_2m;
-    windEl.textContent = current.wind_speed_10m + " " + units.wind_speed_10m;
-    // current.time looks like "2026-07-14T13:30" -> keep only the time part,
-    // same as the Python version's time[11:]
-    updatedEl.textContent = "Data last updated at " + current.time.slice(11);
-
-    // Night overrides clear/partly-cloudy skies; storms and rain keep their look
-    const useNight = current.is_day === 0 && (codeInfo.theme === "clear" || codeInfo.theme === "partly-cloudy");
-    setTheme(useNight ? "night" : codeInfo.theme);
-
-    hide(loadingEl);
-    show(card);
+    displayWeather(place, weather);
   } catch (err) {
     hide(loadingEl);
     errorEl.textContent = "Something went wrong. Please try again.";
     show(errorEl);
   }
+}
+
+// Step 3: display everything
+function displayWeather(place, weather) {
+  const current = weather.current;
+  const units = weather.current_units;
+  const { codeInfo, theme } = themeFor(current);
+
+  cityNameEl.textContent = place.name;
+  emojiEl.textContent = theme === "night" ? "🌙" : codeInfo.emoji;
+  temperatureEl.textContent = current.temperature_2m + units.temperature_2m;
+  descriptionEl.textContent = codeInfo.description;
+  humidityEl.textContent = current.relative_humidity_2m + units.relative_humidity_2m;
+  windEl.textContent = current.wind_speed_10m + " " + units.wind_speed_10m;
+  // current.time looks like "2026-07-14T13:30" -> keep only the time part,
+  // same as the Python version's time[11:]
+  updatedEl.textContent = "Data last updated at " + current.time.slice(11);
+
+  setTheme(theme);
+  hide(loadingEl);
+  show(card);
 }

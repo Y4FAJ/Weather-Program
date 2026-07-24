@@ -54,6 +54,10 @@ body.night {
   background: linear-gradient(160deg, #0b1026 0%, #1b2745 55%, #2e4372 100%);
 }
 
+body.night-cloudy {
+  background: linear-gradient(160deg, #14192a 0%, #262e42 55%, #3a4358 100%);
+}
+
 /* ============ Sky decorations ============ */
 .sky {
   position: fixed;
@@ -98,7 +102,8 @@ body.overcast .clouds,
 body.rain .clouds,
 body.snow .clouds,
 body.thunder .clouds,
-body.fog .clouds {
+body.fog .clouds,
+body.night-cloudy .clouds {
   opacity: 1;
 }
 
@@ -152,6 +157,15 @@ body.overcast .cloud,
 body.rain .cloud,
 body.thunder .cloud {
   background: rgba(210, 216, 224, 0.5);
+}
+
+body.night-cloudy .cloud {
+  background: rgba(120, 132, 155, 0.45);
+}
+
+/* Faint stars peeking through the night clouds */
+body.night-cloudy .stars {
+  opacity: 0.35;
 }
 
 @keyframes drift {
@@ -368,16 +382,9 @@ body.night .clouds {
   50% { opacity: 0.35; }
 }
 
-/* ============ Location options (multiple matches) ============ */
+/* ============ Location options (Apple Weather-style sneak peeks) ============ */
 .options {
   margin-top: 28px;
-  padding: 22px 20px;
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
   animation: card-in 0.5s ease;
   text-align: left;
 }
@@ -386,52 +393,118 @@ body.night .clouds {
   font-size: 0.95rem;
   font-weight: 600;
   opacity: 0.85;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   text-align: center;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
 }
 
 .options-list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  max-height: 320px;
+  gap: 12px;
+  max-height: 420px;
   overflow-y: auto;
+  padding: 2px;
 }
 
 .option {
+  position: relative;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 12px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.14);
+  min-height: 110px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas:
+    "name temp"
+    "region temp"
+    "desc temp";
+  align-items: start;
+  gap: 2px 12px;
+  padding: 18px 20px;
+  border: none;
+  border-radius: 22px;
   color: #fff;
   font-family: inherit;
   text-align: left;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  transition: transform 0.15s ease, filter 0.15s ease;
+  background: linear-gradient(160deg, #4a6fa5 0%, #78a1d1 100%);
 }
 
 .option:hover {
-  background: rgba(255, 255, 255, 0.28);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  filter: brightness(1.06);
 }
 
 .option:active {
-  transform: scale(0.98);
+  transform: scale(0.985);
 }
 
 .option-name {
-  font-size: 1.05rem;
-  font-weight: 600;
+  grid-area: name;
+  font-size: 1.25rem;
+  font-weight: 700;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.35);
 }
 
 .option-region {
-  font-size: 0.85rem;
-  opacity: 0.75;
+  grid-area: region;
+  font-size: 0.82rem;
+  opacity: 0.85;
+}
+
+.option-desc {
+  grid-area: desc;
+  align-self: end;
+  font-size: 0.95rem;
+  font-weight: 400;
+  margin-top: 10px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.option-temp {
+  grid-area: temp;
+  align-self: start;
+  font-size: 3.1rem;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Per-card weather backgrounds (sneak peeks) */
+.option.opt-clear {
+  background: linear-gradient(160deg, #1e90ff 0%, #57b5ff 45%, #a2dcff 100%);
+}
+.option.opt-partly-cloudy {
+  background: linear-gradient(160deg, #5a8fc4 0%, #86aed3 50%, #c2d6e8 100%);
+}
+.option.opt-overcast {
+  background: linear-gradient(160deg, #4b5563 0%, #6b7280 50%, #9ca3af 100%);
+}
+.option.opt-fog {
+  background: linear-gradient(160deg, #7d8a97 0%, #a3adb8 50%, #cdd4da 100%);
+}
+.option.opt-rain {
+  background: linear-gradient(160deg, #29323c 0%, #485563 55%, #5d6d7e 100%);
+}
+.option.opt-snow {
+  background: linear-gradient(160deg, #7f9bb3 0%, #aabfd1 50%, #dfe9f1 100%);
+}
+.option.opt-thunder {
+  background: linear-gradient(160deg, #10121a 0%, #2c2e45 55%, #4b3f72 100%);
+}
+.option.opt-night {
+  background: linear-gradient(160deg, #0b1026 0%, #1b2745 55%, #2e4372 100%);
+}
+.option.opt-night-cloudy {
+  background: linear-gradient(160deg, #14192a 0%, #262e42 55%, #3a4358 100%);
+}
+.option.opt-default {
+  background: linear-gradient(160deg, #4a6fa5 0%, #78a1d1 50%, #a8c5e6 100%);
 }
 
 /* ============ Weather card ============ */
