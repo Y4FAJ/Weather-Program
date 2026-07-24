@@ -9,6 +9,8 @@ const input = document.getElementById("city-input");
 const errorEl = document.getElementById("error");
 const loadingEl = document.getElementById("loading");
 const card = document.getElementById("weather-card");
+const optionsEl = document.getElementById("options");
+const optionsListEl = document.getElementById("options-list");
 
 const cityNameEl = document.getElementById("city-name");
 const emojiEl = document.getElementById("weather-emoji");
@@ -67,6 +69,39 @@ function hide(el) {
   el.classList.add("hidden");
 }
 
+// Builds a readable "State, Country" line for a geocoding result
+function placeRegion(place) {
+  return [place.admin1, place.country].filter(Boolean).join(", ");
+}
+
+// Shows a clickable list of places when several share the searched name
+function showOptions(places) {
+  optionsListEl.innerHTML = "";
+  places.forEach((place) => {
+    const li = document.createElement("li");
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "option";
+
+    const nameSpan = document.createElement("span");
+    nameSpan.className = "option-name";
+    nameSpan.textContent = place.name;
+
+    const regionSpan = document.createElement("span");
+    regionSpan.className = "option-region";
+    regionSpan.textContent = placeRegion(place);
+
+    button.append(nameSpan, regionSpan);
+    button.addEventListener("click", () => {
+      hide(optionsEl);
+      fetchWeather(place);
+    });
+    li.appendChild(button);
+    optionsListEl.appendChild(li);
+  });
+  show(optionsEl);
+}
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const city = input.value.trim().toLowerCase();
@@ -74,6 +109,7 @@ form.addEventListener("submit", async (event) => {
 
   hide(errorEl);
   hide(card);
+  hide(optionsEl);
   show(loadingEl);
 
   try {
@@ -90,8 +126,41 @@ form.addEventListener("submit", async (event) => {
       return;
     }
 
-    const place = geoData.results[0];
+    // The API fuzzy-matches (e.g. "reykjavik" also returns "Reykjavik
+    // Airport"), so only places whose name exactly matches the search count
+    // as "the same name". Duplicate name/state/country rows are merged.
+    const exactMatches = [];
+    const seen = new Set();
+    for (const place of geoData.results) {
+      if (place.name.toLowerCase() !== city) continue;
+      const key = place.name + "|" + (place.admin1 || "") + "|" + place.country;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      exactMatches.push(place);
+    }
 
+    // Several distinct places share this name -> let the user pick.
+    // Exactly one (or no exact match) -> go straight to the best result.
+    if (exactMatches.length > 1) {
+      hide(loadingEl);
+      showOptions(exactMatches);
+      return;
+    }
+
+    fetchWeather(exactMatches[0] || geoData.results[0]);
+  } catch (err) {
+    hide(loadingEl);
+    errorEl.textContent = "Something went wrong. Please try again.";
+    show(errorEl);
+  }
+});
+
+async function fetchWeather(place) {
+  hide(errorEl);
+  hide(card);
+  show(loadingEl);
+
+  try {
     // Step 2: fetch the current weather (same variables as the Python version,
     // plus is_day so night-time gets a night sky background)
     const weatherResponse = await fetch(
@@ -132,4 +201,4 @@ form.addEventListener("submit", async (event) => {
     errorEl.textContent = "Something went wrong. Please try again.";
     show(errorEl);
   }
-});
+}
