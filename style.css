@@ -507,6 +507,146 @@ body.night .clouds {
   background: linear-gradient(160deg, #4a6fa5 0%, #78a1d1 50%, #a8c5e6 100%);
 }
 
+/* Animated weather details for the location preview cards */
+.option > span {
+  position: relative;
+  z-index: 1;
+}
+
+.option::before,
+.option::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Sunny cards get a soft, slowly pulsing sun. */
+.option.opt-clear::before,
+.option.opt-partly-cloudy::before {
+  background: radial-gradient(circle at 78% 20%, rgba(255, 248, 190, 0.95) 0 9%, rgba(255, 224, 102, 0.38) 15%, rgba(255, 224, 102, 0) 36%);
+  animation: preview-sun 5s ease-in-out infinite;
+}
+
+/* Cloud layers keep partly-cloudy and overcast previews from feeling flat. */
+.option.opt-partly-cloudy::after,
+.option.opt-overcast::before,
+.option.opt-night-cloudy::after {
+  inset: -12% -8%;
+  opacity: 0.28;
+  background:
+    radial-gradient(ellipse at 20% 42%, rgba(255, 255, 255, 0.82) 0 12%, transparent 13%),
+    radial-gradient(ellipse at 34% 37%, rgba(255, 255, 255, 0.72) 0 15%, transparent 16%),
+    radial-gradient(ellipse at 52% 48%, rgba(255, 255, 255, 0.65) 0 17%, transparent 18%),
+    radial-gradient(ellipse at 75% 36%, rgba(255, 255, 255, 0.62) 0 14%, transparent 15%);
+  animation: preview-clouds 16s ease-in-out infinite alternate;
+}
+
+.option.opt-overcast::before {
+  opacity: 0.2;
+}
+
+.option.opt-night-cloudy::after {
+  opacity: 0.16;
+}
+
+/* Rain and thunder cards inherit the full page's falling-rain feeling. */
+.option.opt-rain::before,
+.option.opt-thunder::before {
+  inset: -25% -10%;
+  opacity: 0.46;
+  transform: skewX(-4deg);
+  background-image:
+    radial-gradient(1.2px 11px at 12% 15%, rgba(255, 255, 255, 0.66) 50%, transparent 65%),
+    radial-gradient(1px 9px at 35% 45%, rgba(255, 255, 255, 0.56) 50%, transparent 65%),
+    radial-gradient(1.2px 12px at 58% 25%, rgba(255, 255, 255, 0.64) 50%, transparent 65%),
+    radial-gradient(1px 10px at 78% 60%, rgba(255, 255, 255, 0.54) 50%, transparent 65%),
+    radial-gradient(1.2px 11px at 92% 35%, rgba(255, 255, 255, 0.6) 50%, transparent 65%);
+  background-size: 86px 92px;
+  animation: preview-rain 0.7s linear infinite;
+}
+
+.option.opt-thunder::after {
+  background: rgba(255, 255, 235, 0.9);
+  opacity: 0;
+  animation: preview-lightning 5s infinite;
+}
+
+/* Snow uses drifting flakes rather than rain streaks. */
+.option.opt-snow::before {
+  inset: -50% -20%;
+  opacity: 0.72;
+  background-image:
+    radial-gradient(3px 3px at 15% 18%, #fff 55%, transparent 60%),
+    radial-gradient(4px 4px at 38% 60%, #fff 55%, transparent 60%),
+    radial-gradient(3px 3px at 65% 25%, #fff 55%, transparent 60%),
+    radial-gradient(4px 4px at 86% 75%, #fff 55%, transparent 60%);
+  background-size: 84px 76px;
+  animation: preview-snow 6s linear infinite;
+}
+
+/* Night previews get a subtle star field, while fog stays softly layered. */
+.option.opt-night::before,
+.option.opt-night-cloudy::before {
+  opacity: 0.72;
+  background-image:
+    radial-gradient(1.5px 1.5px at 12% 26%, #fff 55%, transparent 60%),
+    radial-gradient(2px 2px at 40% 14%, #fff 55%, transparent 60%),
+    radial-gradient(1.5px 1.5px at 63% 48%, #fff 55%, transparent 60%),
+    radial-gradient(2px 2px at 88% 24%, #fff 55%, transparent 60%);
+  animation: preview-stars 4s ease-in-out infinite;
+}
+
+.option.opt-fog::before {
+  opacity: 0.26;
+  background: repeating-linear-gradient(168deg, transparent 0 20px, rgba(255, 255, 255, 0.38) 21px 30px, transparent 31px 52px);
+  animation: preview-fog 8s ease-in-out infinite alternate;
+}
+
+@keyframes preview-sun {
+  0%, 100% { transform: scale(1); opacity: 0.82; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+
+@keyframes preview-clouds {
+  from { transform: translateX(-5%); }
+  to { transform: translateX(5%); }
+}
+
+@keyframes preview-rain {
+  from { background-position: 0 0; }
+  to { background-position: 0 184px; }
+}
+
+@keyframes preview-lightning {
+  0%, 88%, 94%, 100% { opacity: 0; }
+  89%, 93% { opacity: 0.38; }
+  91% { opacity: 0.1; }
+}
+
+@keyframes preview-snow {
+  from { background-position: 0 0; }
+  to { background-position: 26px 110px; }
+}
+
+@keyframes preview-stars {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes preview-fog {
+  from { transform: translateX(-3%); }
+  to { transform: translateX(3%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option::before,
+  .option::after {
+    animation: none;
+  }
+}
+
 /* ============ Weather card ============ */
 .card {
   margin-top: 28px;
