@@ -89,6 +89,21 @@ function placeRegion(place) {
   return [place.admin1, place.country].filter(Boolean).join(", ");
 }
 
+// Reuses the same three cloud elements and animation classes as the full sky.
+function createPreviewClouds() {
+  const clouds = document.createElement("span");
+  clouds.className = "option-weather-clouds";
+  clouds.setAttribute("aria-hidden", "true");
+
+  ["cloud-1", "cloud-2", "cloud-3"].forEach((cloudClass) => {
+    const cloud = document.createElement("span");
+    cloud.className = "cloud " + cloudClass;
+    clouds.appendChild(cloud);
+  });
+
+  return clouds;
+}
+
 // Shows a clickable list of places when several share the searched name,
 // each previewing its current weather (background, temperature, description)
 async function showOptions(places) {
@@ -128,7 +143,7 @@ async function showOptions(places) {
     tempSpan.className = "option-temp";
     tempSpan.textContent = Math.round(weather.current.temperature_2m) + "°";
 
-    button.append(nameSpan, regionSpan, descSpan, tempSpan);
+    button.append(nameSpan, regionSpan, descSpan, tempSpan, createPreviewClouds());
     button.addEventListener("click", () => {
       hide(optionsEl);
       displayWeather(place, weather);

@@ -508,7 +508,7 @@ body.night .clouds {
 }
 
 /* Animated weather details for the location preview cards */
-.option > span {
+.option > span:not(.option-weather-clouds) {
   position: relative;
   z-index: 1;
 }
@@ -529,33 +529,37 @@ body.night .clouds {
   animation: preview-sun 5s ease-in-out infinite;
 }
 
-/* Match the full card's rounded cloud bodies and overlapping puffs. */
-.option.opt-partly-cloudy::after,
-.option.opt-overcast::before,
-.option.opt-night-cloudy::after {
-  --preview-cloud-colour: rgba(255, 255, 255, 0.92);
-  inset: -14% -10%;
-  opacity: 0.72;
-  background:
-    radial-gradient(ellipse 82px 26px at 24% 70%, var(--preview-cloud-colour) 0 96%, transparent 100%),
-    radial-gradient(circle 32px at 17% 63%, var(--preview-cloud-colour) 0 96%, transparent 100%),
-    radial-gradient(circle 43px at 27% 57%, var(--preview-cloud-colour) 0 96%, transparent 100%),
-    radial-gradient(circle 32px at 37% 63%, var(--preview-cloud-colour) 0 96%, transparent 100%),
-    radial-gradient(ellipse 64px 20px at 78% 37%, var(--preview-cloud-colour) 0 96%, transparent 100%),
-    radial-gradient(circle 24px at 72% 31%, var(--preview-cloud-colour) 0 96%, transparent 100%),
-    radial-gradient(circle 36px at 80% 25%, var(--preview-cloud-colour) 0 96%, transparent 100%),
-    radial-gradient(circle 24px at 89% 31%, var(--preview-cloud-colour) 0 96%, transparent 100%);
-  animation: preview-clouds 16s ease-in-out infinite alternate;
+/* Reuse the full-sized card's three moving cloud elements in previews. */
+.option-weather-clouds {
+  position: absolute;
+  inset: -24%;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.2s ease;
+  transform: scale(0.68);
+  transform-origin: center;
 }
 
-.option.opt-overcast::before {
-  --preview-cloud-colour: rgba(218, 224, 232, 0.82);
-  opacity: 0.48;
+.option.opt-partly-cloudy .option-weather-clouds,
+.option.opt-overcast .option-weather-clouds,
+.option.opt-fog .option-weather-clouds,
+.option.opt-rain .option-weather-clouds,
+.option.opt-snow .option-weather-clouds,
+.option.opt-thunder .option-weather-clouds,
+.option.opt-night-cloudy .option-weather-clouds {
+  opacity: 1;
 }
 
-.option.opt-night-cloudy::after {
-  --preview-cloud-colour: rgba(150, 164, 190, 0.72);
-  opacity: 0.34;
+.option.opt-overcast .option-weather-clouds .cloud,
+.option.opt-rain .option-weather-clouds .cloud,
+.option.opt-thunder .option-weather-clouds .cloud {
+  background: rgba(210, 216, 224, 0.5);
+}
+
+.option.opt-night-cloudy .option-weather-clouds .cloud {
+  background: rgba(120, 132, 155, 0.45);
 }
 
 /* Rain and thunder cards inherit the full page's falling-rain feeling. */
@@ -614,11 +618,6 @@ body.night .clouds {
 @keyframes preview-sun {
   0%, 100% { transform: scale(1); opacity: 0.82; }
   50% { transform: scale(1.08); opacity: 1; }
-}
-
-@keyframes preview-clouds {
-  from { transform: translateX(-5%); }
-  to { transform: translateX(5%); }
 }
 
 @keyframes preview-rain {
