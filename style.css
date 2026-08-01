@@ -529,26 +529,33 @@ body.night .clouds {
   animation: preview-sun 5s ease-in-out infinite;
 }
 
-/* Cloud layers keep partly-cloudy and overcast previews from feeling flat. */
+/* Match the full card's rounded cloud bodies and overlapping puffs. */
 .option.opt-partly-cloudy::after,
 .option.opt-overcast::before,
 .option.opt-night-cloudy::after {
-  inset: -12% -8%;
-  opacity: 0.28;
+  --preview-cloud-colour: rgba(255, 255, 255, 0.92);
+  inset: -14% -10%;
+  opacity: 0.72;
   background:
-    radial-gradient(ellipse at 20% 42%, rgba(255, 255, 255, 0.82) 0 12%, transparent 13%),
-    radial-gradient(ellipse at 34% 37%, rgba(255, 255, 255, 0.72) 0 15%, transparent 16%),
-    radial-gradient(ellipse at 52% 48%, rgba(255, 255, 255, 0.65) 0 17%, transparent 18%),
-    radial-gradient(ellipse at 75% 36%, rgba(255, 255, 255, 0.62) 0 14%, transparent 15%);
+    radial-gradient(ellipse 82px 26px at 24% 70%, var(--preview-cloud-colour) 0 96%, transparent 100%),
+    radial-gradient(circle 32px at 17% 63%, var(--preview-cloud-colour) 0 96%, transparent 100%),
+    radial-gradient(circle 43px at 27% 57%, var(--preview-cloud-colour) 0 96%, transparent 100%),
+    radial-gradient(circle 32px at 37% 63%, var(--preview-cloud-colour) 0 96%, transparent 100%),
+    radial-gradient(ellipse 64px 20px at 78% 37%, var(--preview-cloud-colour) 0 96%, transparent 100%),
+    radial-gradient(circle 24px at 72% 31%, var(--preview-cloud-colour) 0 96%, transparent 100%),
+    radial-gradient(circle 36px at 80% 25%, var(--preview-cloud-colour) 0 96%, transparent 100%),
+    radial-gradient(circle 24px at 89% 31%, var(--preview-cloud-colour) 0 96%, transparent 100%);
   animation: preview-clouds 16s ease-in-out infinite alternate;
 }
 
 .option.opt-overcast::before {
-  opacity: 0.2;
+  --preview-cloud-colour: rgba(218, 224, 232, 0.82);
+  opacity: 0.48;
 }
 
 .option.opt-night-cloudy::after {
-  opacity: 0.16;
+  --preview-cloud-colour: rgba(150, 164, 190, 0.72);
+  opacity: 0.34;
 }
 
 /* Rain and thunder cards inherit the full page's falling-rain feeling. */
